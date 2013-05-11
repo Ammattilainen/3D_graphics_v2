@@ -1,0 +1,96 @@
+<?doctype HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Module 2</title>
+<!-- include jQuery -->
+<script src="lib/jquery-1.9.1.min.js"></script>
+<script src="lib/three.js"></script>
+
+<!-- fragment shader code -->
+<script id="shader-fs" type="x-shader/x-fragment">
+
+precision lowp float;
+varying lowp float vAngle;
+varying vec4 vColor;
+
+vec4 color(float a) //this is for testing
+{
+	return vec4(cos(a*0.5), sin(a), sin(a*0.5), 1.0);
+}
+
+
+// main program.
+void main() {
+  gl_FragColor = color(vAngle);
+  //gl_FragColor = vColor;
+  
+}
+
+</script>
+
+<!-- vertex shader code -->
+<script id="shader-vs" type="x-shader/x-vertex">
+
+attribute float aAngle; //angle for our circle
+uniform float radius; //and radius too
+
+uniform mat4 uModelView;   // uniform modelView matrix (transform)
+uniform mat4 uProjection;  // uniform projection matrix (transform)
+varying lowp float vAngle;
+varying vec4 vColor;
+
+//function transform will return the vec4 location for every vertex
+vec4 transform(float a)
+{
+	return vec4(cos(a) * radius, sin(a) * radius, 0.0, 1.0);
+}
+//and color function fill return the color of the vertex
+vec4 color(float a)
+{
+	return vec4(cos(a*0.5), sin(a), sin(a*0.5), 1.0);
+}
+
+// main program.
+void main()
+{
+  
+  gl_PointSize = 2.0;
+  gl_Position  = uProjection  * uModelView * transform(aAngle);
+  vAngle = aAngle;
+  vColor = color(aAngle);
+}
+
+</script>
+
+<!-- include our lesson-based js -->
+<script src="Module2.js"></script>
+<!-- bind radio button change to type change -->
+<script>
+$(function(){
+   $("#controls input").each( function(i){
+      $(this).on('change', function(){
+         if($(this).is(':checked')){
+             app.setMode( $(this).val() );
+             app.Render();
+          }
+      });
+   });
+})
+</script>
+
+</head>
+<body onload='app.Prepare($("#main"));'>
+<div id="controls">
+<div id="title">WebGL module 2</div>
+<div>Select option for rendering type.</div>
+<input type="radio" name="render-type" value="TRIANGLE_FAN"/>Polygon<br/>
+<input type="radio" name="render-type" value="LINE_LOOP"/>Line loop<br/>
+<input type="radio" name="render-type" value="POINT_SPRITE" checked/>Point sprite<br/>
+</div>
+<canvas id="main" style="border: solid 1px;" width="800" height="600">Canvas is not supported</canvas>
+
+
+
+</body>
+</html>
